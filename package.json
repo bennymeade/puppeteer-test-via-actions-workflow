@@ -1,0 +1,23 @@
+{
+  "name": "puppeteer-test-via-actions-workflow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bennymeade/puppeteer-test-via-actions-workflow.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bennymeade/puppeteer-test-via-actions-workflow/issues"
+  },
+  "homepage": "https://github.com/bennymeade/puppeteer-test-via-actions-workflow#readme",
+  "devDependencies": {
+    "puppeteer": "^13.1.2"
+  }
+}

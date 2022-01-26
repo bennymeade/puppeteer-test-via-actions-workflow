@@ -1,0 +1,71 @@
+name: Corp & WIOP tests Dev Sanity CMS
+
+env:
+  CIT_BOT_USERNAME: ${{ secrets.CIT_BOT_USERNAME }}
+  CIT_BOT_PASSWORD: ${{ secrets.CIT_BOT_PASSWORD }}
+
+on:
+  pull_request:
+    paths:
+      - packages/content/studio/**
+  workflow_dispatch:
+
+jobs:
+  cypress-test-corporate:
+    name: Corporate - Setup and build local Sanity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Show inputs 
+        run: |
+          echo "branch: ${GITHUB_REF##*/}"
+      - name: Install project packages
+        run: |
+          npm clean-install
+          cd packages/web/corporate
+          npx lerna bootstrap --include-dependents --include-dependencies --scope=@{COMPANY}/web-corporate
+      - name: Studio install & build - Corporate
+        run: |
+          cd packages/content/studio/corporate
+          npx lerna bootstrap --include-dependencies --scope=@{COMPANY}/content-studio-corporate
+          export NODE_OPTIONS="--max-old-space-size=8192"
+          npm run build
+      - name: Run Sanity CMS tests on localhost - Corporate
+        uses: cypress-io/github-action@v2
+        with:
+          install: false
+          working-directory: packages/
+          start: npx serve ./content/studio/corporate/dist --listen=3333 --config=../serve.json
+          wait-on: 'http://localhost:3333'
+          command: npx mocha --timeout=1200000 web/corporate/tests/puppeteer/test/sanity.spec.js --exit
+        env:
+           ENV_UNDER_TEST: 'dev'
+
+  cypress-test-wiop:
+    name: WIOP - Setup and build local Sanity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install project packages
+        run: |
+          npm clean-install
+          cd packages/web/corporate
+          npx lerna bootstrap --include-dependents --include-dependencies --scope=@{COMPANY}/web-corporate
+      - name: Studio install & build - WIOP
+        run: |
+          cd packages/content/studio/wiop
+          npx lerna bootstrap --include-dependencies --scope=@{COMPANY}/content-studio-wiop
+          export NODE_OPTIONS="--max-old-space-size=8192"
+          npm run build
+      - name: Run Sanity CMS tests on localhost - WIOP
+        uses: cypress-io/github-action@v2
+        with:
+          install: false
+          working-directory: packages/
+          start: npx serve ./content/studio/wiop/dist --listen=3333 --config=../serve.json
+          wait-on: 'http://localhost:3333'
+          command: npx mocha --timeout=1200000 web/corporate/tests/puppeteer/test/sanity.spec.js --exit
+        env:
+           ENV_UNDER_TEST: 'dev'
